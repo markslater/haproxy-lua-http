@@ -610,6 +610,7 @@ end
 -- @param params Lua table with request url arguments
 -- @param auth (username, password) tuple for HTTP auth
 -- @param timeout Optional timeout for socket operations (5s by default)
+-- @param socket_addr Optional path to a UNIX socket to use instead of TCP
 --
 -- @return Response object or tuple (nil, msg) on errors
 
@@ -661,7 +662,12 @@ function M.send(method, t)
         return nil, "http." .. method:lower() .. ": Invalid URL schema " .. tostring(schema)
     end
 
-    local c, err = connect(socket, addr, port)
+    local c, err
+    if not t.socket_addr then
+	c,err = connect(socket, addr, port)
+    else
+	c,err = connect(socket, t.socket_addr)
+    end
 
     if c then
         local req = {}
